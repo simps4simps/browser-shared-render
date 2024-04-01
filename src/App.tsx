@@ -7,6 +7,7 @@ import {
   addToOpenTabs,
 } from "./Utils";
 
+// Add on to tabs when loaded
 addToOpenTabs();
 console.log(localStorage.getItem("TABSOPEN"));
 
@@ -14,10 +15,13 @@ const App = () => {
   const [browserScreen, setBrowserScreen] = useState<IBrowserScreen>(
     {} as IBrowserScreen
   );
+
+  // Remove from tabs when unload
   useEffect(() => {
     window.addEventListener("unload", removeFromOpenTabs);
   }, []);
 
+  // Assign browser data { width , height, top, left } to BrowserScreen
   useEffect(() => {
     setInterval(() => {
       setBrowserScreen(getBrowserScreenData());
