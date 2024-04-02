@@ -1,0 +1,12 @@
+.circle {
+  min-width: 200px;
+  width: 50%;
+  max-width: 500px;
+  aspect-ratio: 9 / 9;
+  background-color: #e4e3e3;
+  border-radius: 50%;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+}
