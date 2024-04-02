@@ -6,6 +6,7 @@ import {
   removeFromOpenTabs,
   addToOpenTabs,
 } from "./Utils";
+import Circle from "./components/Circle/Circle";
 
 // Add on to tabs when loaded
 addToOpenTabs();
@@ -28,7 +29,11 @@ const App = () => {
     }, 300);
   }, []);
 
-  return <div></div>;
+  return (
+    <>
+      <Circle />
+    </>
+  );
 };
 
 export default App;
