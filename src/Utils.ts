@@ -21,12 +21,17 @@ const addToOpenTabs = (): void => {
   }
 };
 
-const removeFromOpenTabs = (): void => {
+const removeFromOpenTabs = (windowId: string): void => {
   const openedTabs: string | null = window.localStorage.getItem("TABSOPEN");
-  if (openedTabs) {
+  if (openedTabs && openedTabs != "0") {
     const openedTabsInt: number = parseInt(openedTabs) - 1;
     window.localStorage.setItem("TABSOPEN", openedTabsInt.toString());
+    window.localStorage.setItem("TABCLOSED", windowId);
   }
 };
 
-export { getBrowserScreenData, addToOpenTabs, removeFromOpenTabs };
+const addTabData = (tabId: number, tabData: string): void => {
+  localStorage.setItem(tabId.toString(), tabData);
+};
+
+export { getBrowserScreenData, addToOpenTabs, removeFromOpenTabs, addTabData };
