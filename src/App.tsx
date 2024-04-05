@@ -1,68 +1,88 @@
-import { useCallback, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import "./App.css";
-import { IBrowserScreen } from "./Types";
-import {
-  getBrowserScreenData,
-  removeFromOpenTabs,
-  addToOpenTabs,
-  addTabData,
-} from "./Utils";
+import { IBrowserScreen, ITabsData } from "./Types";
+import { addTabData, getBrowserScreenData } from "./Utils";
 import Circle from "./components/Circle/Circle";
+import { v4 as uuid } from "uuid";
+
+localStorage.clear();
 
 const App = () => {
   const [browserScreen, setBrowserScreen] = useState<IBrowserScreen>(
     {} as IBrowserScreen
   );
-  const [browserId, setBrowserId] = useState<number>(0);
   const [flag, setFlag] = useState<boolean>(false);
-
-  const unloadEvent = useCallback(() => {
-    // Remove from tabs when unload
-    removeFromOpenTabs(browserId.toString());
-  }, []);
-
-  const loadEvent = useCallback(() => {
-    // Add on to tabs when loaded
-    addToOpenTabs();
-    // Assign browser id on load
-    const openedTabs: string | null = window.localStorage.getItem("TABSOPEN");
-
-    if (openedTabs) {
-      const id: number = parseInt(openedTabs);
-      setBrowserId(id);
-    }
-
-    // Assgin browser id on Tab close
-    window.addEventListener("storage", (data: StorageEvent) => {
-      if (data.key == "TABSOPEN" || data.key == "TABCLOSED") console.log(data);
-      window.localStorage.setItem("TABCLOSED", "0");
-    });
-  }, []);
-
-  useEffect(() => {
-    window.onload = loadEvent;
-
-    // Onunload on working properly
-    window.onunload = unloadEvent;
-  }, [unloadEvent, loadEvent]);
+  const [browserId, setBrowserId] = useState<string>("");
 
   useEffect(() => {
     if (flag) return;
     // Assign browser data { width , height, top, left } to BrowserScreen
     setBrowserScreen(getBrowserScreenData());
-    addTabData(browserId, JSON.stringify(browserScreen));
 
     // Throttle the effect
     setFlag(true);
     setTimeout(() => {
       setFlag(false);
     }, 300);
-  }, [browserId, browserScreen, flag]);
+  }, [browserScreen, flag]);
+
+  useEffect(() => {
+    const idString: string = uuid().slice(0, 8);
+    setBrowserId(idString);
+  }, []);
+
+  useEffect(() => {
+    // Create dummy tab
+    const browserScreens: ITabsData = {
+      tabs: [
+        {
+          id: "",
+          browserData: {
+            height: NaN,
+            width: NaN,
+            top: NaN,
+            left: NaN,
+          },
+        },
+      ],
+    };
+
+    addTabData(JSON.stringify(browserScreens));
+  }, [browserId]);
+
+  useEffect(() => {
+    const tabData: string | null = window.localStorage.getItem("TAB_DATA");
+    if (tabData) {
+      const browserScreens: ITabsData = JSON.parse(tabData);
+
+      // Check if this browser exists in the local storage
+      if (!browserScreens.tabs.find((data) => data.id == browserId)) {
+        // If it does not then add it to the storage
+        browserScreens.tabs.push({
+          browserData: browserScreen,
+          id: browserId,
+        });
+      } else {
+        // If it does change the value
+        const index: number = browserScreens.tabs.findIndex(
+          (data) => data.id == browserId
+        );
+
+        browserScreens.tabs[index].browserData = browserScreen;
+      }
+
+      addTabData(JSON.stringify(browserScreens));
+      console.log(browserScreens);
+    }
+  }, [browserId, browserScreen]);
 
   return (
     <>
       <Circle />
-      <h1 style={{ color: "white" }}>{browserId}</h1>
+      <h1 style={{ color: "white" }}>
+        {browserScreen.height}, {browserScreen.width}, {browserScreen.left},{" "}
+        {browserScreen.top}
+      </h1>
     </>
   );
 };
