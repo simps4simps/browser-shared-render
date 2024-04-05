@@ -5,4 +5,13 @@ interface IBrowserScreen {
   height: number;
 }
 
-export type { IBrowserScreen };
+interface ITabData {
+  id: string;
+  browserData: IBrowserScreen;
+}
+
+interface ITabsData {
+  tabs: ITabData[];
+}
+
+export type { IBrowserScreen, ITabsData };
